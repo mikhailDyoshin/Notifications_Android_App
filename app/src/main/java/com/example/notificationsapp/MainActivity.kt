@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.notificationsapp.common.NOTIFICATION_ID
+import com.example.notificationsapp.notifications.NotificationType
 import com.example.notificationsapp.notifications.NotificationsStore
 import com.example.notificationsapp.ui.theme.NotificationsAppTheme
 
@@ -45,7 +46,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val basicNotification = NotificationsStore().getNotification(context)
+        val basicNotification = NotificationsStore().getNotification(context, NotificationType.REPLY)
         showNotification(basicNotification)
 
         setContent {
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
 
 @Composable
