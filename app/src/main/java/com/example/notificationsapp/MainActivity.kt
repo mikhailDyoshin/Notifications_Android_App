@@ -16,38 +16,20 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.notificationsapp.common.NOTIFICATION_ID
+import com.example.notificationsapp.notifications.NotificationHelper
 import com.example.notificationsapp.notifications.NotificationType
 import com.example.notificationsapp.notifications.NotificationsStore
+import com.example.notificationsapp.presentation.NotificationsLauncherScreen
 import com.example.notificationsapp.ui.theme.NotificationsAppTheme
 
 class MainActivity : ComponentActivity() {
 
     private val context = this
-    private fun showNotification(notificationBuilder: NotificationCompat.Builder) {
-
-        with(NotificationManagerCompat.from(context)) {
-            if (ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return
-            }
-            notify(NOTIFICATION_ID, notificationBuilder.build())
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val basicNotification = NotificationsStore().getNotification(context, NotificationType.REPLY)
-        showNotification(basicNotification)
+        val basicNotification = NotificationsStore().getNotification(context, NotificationType.BASIC)
+        val replyNotification = NotificationsStore().getNotification(context, NotificationType.REPLY)
 
         setContent {
             NotificationsAppTheme {
@@ -56,26 +38,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    NotificationsLauncherScreen(
+                        notifyBasic = { NotificationHelper.notify(context, 11, basicNotification) },
+                        notifyReply = { NotificationHelper.notify(context, 15, replyNotification) }
+                    )
                 }
             }
         }
     }
 
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NotificationsAppTheme {
-        Greeting("Android")
-    }
 }

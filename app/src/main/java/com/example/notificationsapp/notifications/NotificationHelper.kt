@@ -16,10 +16,6 @@ object NotificationHelper : NotificationHelperInterface {
         notificationId: Int,
         notificationBuilder: NotificationCompat.Builder
     ) {
-        if (notificationIds.contains(notificationId)) {
-            throw IllegalArgumentException("Notification with ID $notificationId already exists.")
-        }
-
         val notificationManager = NotificationManagerCompat.from(context)
         if (ActivityCompat.checkSelfPermission(
                 context,
