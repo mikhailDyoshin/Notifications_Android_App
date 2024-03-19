@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.RemoteInput
 import com.example.notificationsapp.common.KEY_TEXT_REPLY
-import com.example.notificationsapp.common.NOTIFICATION_ID
+import com.example.notificationsapp.common.REPLY_NOTIFICATION_ID
 
 class ReplyNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -18,7 +18,7 @@ class ReplyNotificationReceiver : BroadcastReceiver() {
                 KEY_TEXT_REPLY
             ).toString()
             Toast.makeText(context, title, Toast.LENGTH_SHORT).show()
-            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
+            NotificationManagerCompat.from(context).cancel(REPLY_NOTIFICATION_ID)
         }
     }
 }
