@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity() {
                                 REPLY_NOTIFICATION_ID,
                                 replyNotification
                             )
+                        },
+                        clearAll = {
+                            NotificationHelper.clearAll(context)
                         }
                     )
                 }

@@ -13,7 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun NotificationsLauncherScreen(notifyBasic: () -> Unit, notifyReply: () -> Unit) {
+fun NotificationsLauncherScreen(
+    notifyBasic: () -> Unit,
+    notifyReply: () -> Unit,
+    clearAll: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -27,6 +31,11 @@ fun NotificationsLauncherScreen(notifyBasic: () -> Unit, notifyReply: () -> Unit
                 Text(text = "Reply")
             }
         }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            Button(onClick = { clearAll() }) {
+                Text(text = "Reply")
+            }
+        }
 
     }
 }
@@ -37,5 +46,6 @@ fun NotificationsLauncherScreenPreview() {
     NotificationsLauncherScreen(
         notifyBasic = {},
         notifyReply = {},
+        clearAll = {},
     )
 }
