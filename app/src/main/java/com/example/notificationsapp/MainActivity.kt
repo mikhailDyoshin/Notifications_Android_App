@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.example.notificationsapp.common.BASIC_NOTIFICATION_ID
 import com.example.notificationsapp.common.REPLY_NOTIFICATION_ID
 import com.example.notificationsapp.notifications.NotificationHelper
@@ -14,6 +17,7 @@ import com.example.notificationsapp.notifications.NotificationType
 import com.example.notificationsapp.notifications.NotificationsStore
 import com.example.notificationsapp.presentation.NotificationsLauncherScreen
 import com.example.notificationsapp.ui.theme.NotificationsAppTheme
+import com.example.notificationsapp.worker.DownloadWorker
 
 class MainActivity : ComponentActivity() {
 
@@ -25,6 +29,10 @@ class MainActivity : ComponentActivity() {
             NotificationsStore().getNotification(context, NotificationType.BASIC)
         val replyNotification =
             NotificationsStore().getNotification(context, NotificationType.REPLY)
+
+        val uploadWorkRequest: WorkRequest =
+            OneTimeWorkRequestBuilder<DownloadWorker>()
+                .build()
 
         setContent {
             NotificationsAppTheme {
@@ -47,6 +55,11 @@ class MainActivity : ComponentActivity() {
                                 REPLY_NOTIFICATION_ID,
                                 replyNotification
                             )
+                        },
+                        notifyDownload = {
+                            WorkManager
+                                .getInstance(context)
+                                .enqueue(uploadWorkRequest)
                         },
                         clearAll = {
                             NotificationHelper.clearAll(context)

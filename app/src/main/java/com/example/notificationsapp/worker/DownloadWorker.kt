@@ -8,7 +8,10 @@ import androidx.work.WorkerParameters
 import com.example.notificationsapp.common.DOWNLOAD_NOTIFICATION_ID
 import com.example.notificationsapp.common.PROGRESS_MAX
 import com.example.notificationsapp.notifications.NotificationsStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class DownloadWorker(private val context: Context, parameters: WorkerParameters) :
     CoroutineWorker(context, parameters) {
@@ -26,18 +29,29 @@ class DownloadWorker(private val context: Context, parameters: WorkerParameters)
     }
 
     private suspend fun download() {
-        var progress = 0
+        var progress = 1
 
-        while (progress < PROGRESS_MAX) {
-            delay(1000)
-            progress++
+        while (progress < PROGRESS_MAX-1) {
+            runBlocking {
+                delay(100)
+            }
+
             val notificationCurrent = NotificationsStore().getDownloadNotification(
                 context = context,
-                contentText = "Starting Download",
-                progressCurrent = 0
+                contentText = "Downloading",
+                progressCurrent = progress
             )
             setForeground(createForegroundInfo(notificationCurrent))
+            progress += 1
         }
+
+        val notificationFinal = NotificationsStore().getDownloadNotification(
+            context = context,
+            contentText = "Download complete",
+            progressCurrent = 0
+        ).setProgress(0, 0, false)
+
+        setForeground(createForegroundInfo(notificationFinal))
     }
 
     private fun createForegroundInfo(notification: NotificationCompat.Builder): ForegroundInfo {

@@ -16,7 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 fun NotificationsLauncherScreen(
     notifyBasic: () -> Unit,
     notifyReply: () -> Unit,
-    clearAll: () -> Unit
+    notifyDownload: () -> Unit,
+    clearAll: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -29,6 +30,11 @@ fun NotificationsLauncherScreen(
             }
             Button(onClick = { notifyReply() }) {
                 Text(text = "Reply")
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            Button(onClick = { notifyDownload() }) {
+                Text(text = "Download")
             }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
@@ -46,6 +52,7 @@ fun NotificationsLauncherScreenPreview() {
     NotificationsLauncherScreen(
         notifyBasic = {},
         notifyReply = {},
+        notifyDownload = {},
         clearAll = {},
     )
 }

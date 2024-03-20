@@ -7,12 +7,15 @@ import android.content.Context
 import android.os.Build
 import com.example.notificationsapp.common.CHANNEL_DESCRIPTION
 import com.example.notificationsapp.common.CHANNEL_NAME
+import com.example.notificationsapp.common.DOWNLOADS_CHANNEL_DESCRIPTION
+import com.example.notificationsapp.common.DOWNLOADS_CHANNEL_NAME
 
 class NotificationsApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        createDownloadsNotificationChannel()
     }
 
     private fun createNotificationChannel() {
@@ -23,6 +26,22 @@ class NotificationsApp: Application() {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_NAME, name, importance).apply {
                 description = CHANNEL_DESCRIPTION
+            }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createDownloadsNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is not in the Support Library.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = DOWNLOADS_CHANNEL_NAME
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val channel = NotificationChannel(DOWNLOADS_CHANNEL_NAME, name, importance).apply {
+                description = DOWNLOADS_CHANNEL_DESCRIPTION
             }
             // Register the channel with the system.
             val notificationManager: NotificationManager =

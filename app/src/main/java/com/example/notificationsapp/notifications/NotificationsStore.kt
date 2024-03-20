@@ -11,6 +11,7 @@ import com.example.notificationsapp.MainActivity
 import com.example.notificationsapp.R
 import com.example.notificationsapp.broadcastReceiver.ReplyNotificationReceiver
 import com.example.notificationsapp.common.CHANNEL_NAME
+import com.example.notificationsapp.common.DOWNLOADS_CHANNEL_NAME
 import com.example.notificationsapp.common.KEY_TEXT_REPLY
 import com.example.notificationsapp.common.PROGRESS_MAX
 import com.example.notificationsapp.common.REPLY_LABEL
@@ -39,7 +40,7 @@ class NotificationsStore {
         contentText: String,
         progressCurrent: Int
     ): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, CHANNEL_NAME)
+        return NotificationCompat.Builder(context, DOWNLOADS_CHANNEL_NAME)
             .setContentTitle("Picture Download")
             .setContentText(contentText)
             .setSmallIcon(androidx.core.R.drawable.notification_bg_normal)

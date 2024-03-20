@@ -1,7 +1,14 @@
 package com.example.notificationsapp.common
 
+// Basic channel
 const val CHANNEL_NAME = "BasicNotificationsChannel"
 const val CHANNEL_DESCRIPTION = "Channel for basic notifications"
+
+// Downloads channel
+const val DOWNLOADS_CHANNEL_NAME = "DownloadsNotificationsChannel"
+const val DOWNLOADS_CHANNEL_DESCRIPTION = "Channel for download-notifications"
+
+// Basic notification
 const val BASIC_NOTIFICATION_ID = 1045
 
 // Reply notification
