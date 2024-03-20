@@ -12,11 +12,15 @@ import com.example.notificationsapp.R
 import com.example.notificationsapp.broadcastReceiver.ReplyNotificationReceiver
 import com.example.notificationsapp.common.CHANNEL_NAME
 import com.example.notificationsapp.common.KEY_TEXT_REPLY
+import com.example.notificationsapp.common.PROGRESS_MAX
 import com.example.notificationsapp.common.REPLY_LABEL
 
 class NotificationsStore {
 
-    fun getNotification(context: Context, notificationType: NotificationType): NotificationCompat.Builder {
+    fun getNotification(
+        context: Context,
+        notificationType: NotificationType
+    ): NotificationCompat.Builder {
 
         return when (notificationType) {
             NotificationType.BASIC -> {
@@ -26,14 +30,30 @@ class NotificationsStore {
             NotificationType.REPLY -> {
                 getReplyNotification(context)
             }
+
         }
+    }
+
+    fun getDownloadNotification(
+        context: Context,
+        contentText: String,
+        progressCurrent: Int
+    ): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, CHANNEL_NAME)
+            .setContentTitle("Picture Download")
+            .setContentText(contentText)
+            .setSmallIcon(androidx.core.R.drawable.notification_bg_normal)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setProgress(PROGRESS_MAX, progressCurrent, false)
+
     }
 
     private fun getBasicNotification(context: Context): NotificationCompat.Builder {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent: PendingIntent =
+            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(context, CHANNEL_NAME)
             .setSmallIcon(androidx.core.R.drawable.notification_bg_normal)
@@ -61,14 +81,17 @@ class NotificationsStore {
         val resultIntent = Intent(context, ReplyNotificationReceiver::class.java)
 
         val replyPendingIntent: PendingIntent =
-            PendingIntent.getBroadcast(context,
+            PendingIntent.getBroadcast(
+                context,
                 0,
                 resultIntent,
-                PendingIntent.FLAG_MUTABLE)
+                PendingIntent.FLAG_MUTABLE
+            )
 
         val replyAction = NotificationCompat.Action.Builder(
             android.R.drawable.ic_input_add,
-            "Add", replyPendingIntent)
+            "Add", replyPendingIntent
+        )
             .addRemoteInput(remoteInput)
             .build()
 

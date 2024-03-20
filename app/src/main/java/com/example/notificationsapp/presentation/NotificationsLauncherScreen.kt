@@ -33,7 +33,7 @@ fun NotificationsLauncherScreen(
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             Button(onClick = { clearAll() }) {
-                Text(text = "Reply")
+                Text(text = "Clear all")
             }
         }
 

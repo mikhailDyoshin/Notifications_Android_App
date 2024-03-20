@@ -9,3 +9,6 @@ const val KEY_TEXT_REPLY = "key_text_reply"
 const val REPLY_LABEL = "Message"
 const val REPLY_NOTIFICATION_ID = 1000
 
+// Download notification
+const val DOWNLOAD_NOTIFICATION_ID = 1011
+const val PROGRESS_MAX = 100
