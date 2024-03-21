@@ -19,3 +19,4 @@ const val REPLY_NOTIFICATION_ID = 1000
 // Download notification
 const val DOWNLOAD_NOTIFICATION_ID = 1011
 const val PROGRESS_MAX = 100
+const val DOWNLOAD_COMPLETE_NOTIFICATION_ID = 2045

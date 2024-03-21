@@ -7,9 +7,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.example.notificationsapp.R
+import com.example.notificationsapp.common.DOWNLOAD_COMPLETE_NOTIFICATION_ID
 import com.example.notificationsapp.common.DOWNLOAD_NOTIFICATION_ID
 import com.example.notificationsapp.common.PROGRESS_MAX
+import com.example.notificationsapp.notifications.NotificationHelper.notify
 import com.example.notificationsapp.notifications.NotificationsStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -53,8 +54,9 @@ class DownloadWorker(private val context: Context, parameters: WorkerParameters)
             contentText = "Download complete",
             progressCurrent = 0
         ).setProgress(0, 0, false)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
 
-        setForeground(createForegroundInfo(notificationFinal))
+        notify(context, DOWNLOAD_COMPLETE_NOTIFICATION_ID, notificationFinal)
     }
 
     private fun createForegroundInfo(notification: NotificationCompat.Builder): ForegroundInfo {
