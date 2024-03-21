@@ -30,9 +30,7 @@ class MainActivity : ComponentActivity() {
         val replyNotification =
             NotificationsStore().getNotification(context, NotificationType.REPLY)
 
-        val uploadWorkRequest: WorkRequest =
-            OneTimeWorkRequestBuilder<DownloadWorker>()
-                .build()
+
 
         setContent {
             NotificationsAppTheme {
@@ -57,6 +55,10 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         notifyDownload = {
+                            val uploadWorkRequest: WorkRequest =
+                                OneTimeWorkRequestBuilder<DownloadWorker>()
+                                    .build()
+
                             WorkManager
                                 .getInstance(context)
                                 .enqueue(uploadWorkRequest)
