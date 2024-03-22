@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.work.OneTimeWorkRequestBuilder
@@ -41,8 +42,31 @@ class MainActivity : ComponentActivity() {
             SessionToken(context, ComponentName(context, PlaybackService::class.java))
 
         val audioUrl = "https://storage.googleapis.com/exoplayer-test-media-0/play.mp3"
+        val shotUrl = "https://actions.google.com/sounds/v1/weapons/50_cal_shells_drop.ogg"
 
-        val mediaItem = MediaItem.fromUri(Uri.parse(audioUrl))
+        val mediaItem =
+            MediaItem.Builder()
+                .setMediaId("media-1")
+                .setUri(Uri.parse(audioUrl))
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setArtist("David Bowie")
+                        .setTitle("Heroes")
+                        .build()
+                )
+                .build()
+
+        val mediaItem2 =
+            MediaItem.Builder()
+                .setMediaId("media-2")
+                .setUri(Uri.parse(shotUrl))
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setArtist("David Backham")
+                        .setTitle("Shot")
+                        .build()
+                )
+                .build()
 
         val controllerFuture =
             MediaController.Builder(context, sessionToken).buildAsync()
@@ -84,7 +108,8 @@ class MainActivity : ComponentActivity() {
                         play = {
                             controllerFuture.addListener({
                                 val controller = controllerFuture.get()
-                                controller.setMediaItem(mediaItem)
+                                controller.addMediaItem(mediaItem)
+                                controller.addMediaItem(mediaItem2)
                                 controller.prepare()
                                 controller.play()
                             }, MoreExecutors.directExecutor())
