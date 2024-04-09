@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.health.connect.datatypes.units.Length
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -26,12 +25,18 @@ class PlaybackService : MediaSessionService() {
 
     private lateinit var nBuilder: NotificationCompat.Builder
 
+    private var isPlaying = false
+
+    private lateinit var notificationManager: NotificationManager
+
     // Create your player and media session in the onCreate lifecycle event
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
         val player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
+        isPlaying = true
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         this.setMediaNotificationProvider(object : MediaNotification.Provider {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -43,7 +48,7 @@ class PlaybackService : MediaSessionService() {
             ): MediaNotification {
                 createNotification(mediaSession)
                 // notification should be created before you return here
-                return MediaNotification(123, nBuilder.build())
+                return MediaNotification(NOTIFICATION_ID, nBuilder.build())
             }
 
             override fun handleCustomCommand(
@@ -74,16 +79,25 @@ class PlaybackService : MediaSessionService() {
             when (it.action) {
                 ACTION_PLAY -> {
                     // Handle play action
+                    isPlaying = true
+                    updateNotificationOnPlayPause()
+                    Toast.makeText(this, "Playing}", Toast.LENGTH_SHORT).show()
                 }
+
                 ACTION_PAUSE -> {
-                    Toast.makeText(this, "Pause", Toast.LENGTH_SHORT).show()
+                    isPlaying = false
+                    updateNotificationOnPlayPause()
+                    Toast.makeText(this, "Paused}", Toast.LENGTH_SHORT).show()
                 }
+
                 ACTION_PREVIOUS -> {
                     // Handle previous action
                 }
+
                 ACTION_NEXT -> {
                     // Handle next action
                 }
+
                 ACTION_CONTROL_SPEED -> {
                     // Handle control speed action
                 }
@@ -99,6 +113,7 @@ class PlaybackService : MediaSessionService() {
             release()
             mediaSession = null
         }
+        isPlaying = false
         super.onDestroy()
     }
 
@@ -106,19 +121,6 @@ class PlaybackService : MediaSessionService() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotification(session: MediaSession) {
 
-        val repeatPendingIntent: PendingIntent? = null
-        val prevPendingIntent: PendingIntent? = null
-        val pausePendingIntent: PendingIntent? = PendingIntent.getService(
-            this,
-            0,
-            Intent(this, PlaybackService::class.java).setAction(ACTION_PAUSE),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val nextPendingIntent: PendingIntent? = null
-        val controlSpeed: PendingIntent? = null
-
-        val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
@@ -131,6 +133,50 @@ class PlaybackService : MediaSessionService() {
         nBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(androidx.media3.ui.R.drawable.exo_icon_vr)
+            .setStyle(
+                MediaStyleNotificationHelper.MediaStyle(session)
+                    .setShowActionsInCompactView(2 /* #1: pause button \*/)
+            )
+
+        updateNotificationOnPlayPause()
+    }
+
+    private fun updateNotificationOnPlayPause() {
+
+        // Define intents
+        val repeatPendingIntent: PendingIntent? = null
+        val prevPendingIntent: PendingIntent? = null
+
+        val pauseIntent = PendingIntent.getService(
+            this,
+            0,
+            Intent(this, PlaybackService::class.java).setAction(ACTION_PAUSE),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val playIntent = PendingIntent.getService(
+            this,
+            0,
+            Intent(this, PlaybackService::class.java).setAction(ACTION_PLAY),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val playPausePendingIntent = if (isPlaying) pauseIntent else playIntent
+
+        val nextPendingIntent: PendingIntent? = null
+        val controlSpeed: PendingIntent? = null
+
+        // Define icons
+        val playPauseIcon =
+            if (isPlaying) {
+                androidx.media3.ui.R.drawable.exo_notification_pause
+            } else {
+                androidx.media3.ui.R.drawable.exo_notification_play
+            }
+
+        // Clear all actions in the notification
+        nBuilder.clearActions()
+
             .addAction(
                 androidx.media3.ui.R.drawable.exo_icon_repeat_all,
                 "Repeat all",
@@ -142,9 +188,9 @@ class PlaybackService : MediaSessionService() {
                 prevPendingIntent
             ) // #0
             .addAction(
-                androidx.media3.ui.R.drawable.exo_notification_pause,
+                playPauseIcon,
                 "Pause",
-                pausePendingIntent
+                playPausePendingIntent
             ) // #1
             .addAction(
                 androidx.media3.ui.R.drawable.exo_notification_next,
@@ -156,13 +202,12 @@ class PlaybackService : MediaSessionService() {
                 "Control speed",
                 controlSpeed
             )
-            .setStyle(
-                MediaStyleNotificationHelper.MediaStyle(session)
-                    .setShowActionsInCompactView(2 /* #1: pause button \*/)
-            )
+
+        notificationManager.notify(NOTIFICATION_ID, nBuilder.build())
     }
 
     companion object {
+        private const val NOTIFICATION_ID = 123
         private const val CHANNEL_ID = "PlaybackServiceChannel"
         const val ACTION_PLAY = "com.example.notificationsapp.ACTION_PLAY"
         const val ACTION_PAUSE = "com.example.notificationsapp.ACTION_PAUSE"
