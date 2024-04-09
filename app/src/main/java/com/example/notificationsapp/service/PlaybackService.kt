@@ -5,8 +5,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.health.connect.datatypes.units.Length
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -67,6 +69,29 @@ class PlaybackService : MediaSessionService() {
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
         mediaSession
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent?.let {
+            when (it.action) {
+                ACTION_PLAY -> {
+                    // Handle play action
+                }
+                ACTION_PAUSE -> {
+                    Toast.makeText(this, "Pause", Toast.LENGTH_SHORT).show()
+                }
+                ACTION_PREVIOUS -> {
+                    // Handle previous action
+                }
+                ACTION_NEXT -> {
+                    // Handle next action
+                }
+                ACTION_CONTROL_SPEED -> {
+                    // Handle control speed action
+                }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
     // Remember to release the player and media session in onDestroy
     override fun onDestroy() {
         mediaSession?.run {
@@ -79,11 +104,16 @@ class PlaybackService : MediaSessionService() {
 
     @OptIn(UnstableApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotification(session: MediaSession) {
+    private fun createNotification(session: MediaSession) {
 
         val repeatPendingIntent: PendingIntent? = null
         val prevPendingIntent: PendingIntent? = null
-        val pausePendingIntent: PendingIntent? = null
+        val pausePendingIntent: PendingIntent? = PendingIntent.getService(
+            this,
+            0,
+            Intent(this, PlaybackService::class.java).setAction(ACTION_PAUSE),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val nextPendingIntent: PendingIntent? = null
         val controlSpeed: PendingIntent? = null
 
@@ -134,5 +164,10 @@ class PlaybackService : MediaSessionService() {
 
     companion object {
         private const val CHANNEL_ID = "PlaybackServiceChannel"
+        const val ACTION_PLAY = "com.example.notificationsapp.ACTION_PLAY"
+        const val ACTION_PAUSE = "com.example.notificationsapp.ACTION_PAUSE"
+        const val ACTION_PREVIOUS = "com.example.notificationsapp.ACTION_PREVIOUS"
+        const val ACTION_NEXT = "com.example.notificationsapp.ACTION_NEXT"
+        const val ACTION_CONTROL_SPEED = "com.example.notificationsapp.ACTION_CONTROL_SPEED"
     }
 }
