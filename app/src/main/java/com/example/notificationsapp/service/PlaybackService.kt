@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -158,14 +159,14 @@ class PlaybackService : MediaSessionService() {
 
         val playIntent = createActionIntent(PlayerNotificationAction.ACTION_PLAY.actionString)
 
-        val playPausePendingIntent = if (isPlaying) pauseIntent else playIntent
+        val playPausePendingIntent = if (player.isPlaying) pauseIntent else playIntent
 
         val nextPendingIntent =
             createActionIntent(PlayerNotificationAction.ACTION_NEXT.actionString)
 
         // Define icons
         val playPauseIcon =
-            if (isPlaying) {
+            if (player.isPlaying) {
                 androidx.media3.ui.R.drawable.exo_notification_pause
             } else {
                 androidx.media3.ui.R.drawable.exo_notification_play
