@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.CommandButton
@@ -20,7 +21,7 @@ import androidx.media3.session.MediaSessionService
 import androidx.media3.session.MediaStyleNotificationHelper
 import com.google.common.collect.ImmutableList
 
-class PlaybackService : MediaSessionService() {
+class PlaybackService : MediaSessionService(), Player.Listener {
     private var mediaSession: MediaSession? = null
 
     private lateinit var nBuilder: NotificationCompat.Builder
@@ -36,6 +37,7 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         player = ExoPlayer.Builder(this).build()
+        player.addListener(this)
         mediaSession = MediaSession.Builder(this, player).build()
         isPlaying = true
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -159,14 +161,14 @@ class PlaybackService : MediaSessionService() {
 
         val playIntent = createActionIntent(PlayerNotificationAction.ACTION_PLAY.actionString)
 
-        val playPausePendingIntent = if (player.isPlaying) pauseIntent else playIntent
+        val playPausePendingIntent = if (isPlaying) pauseIntent else playIntent
 
         val nextPendingIntent =
             createActionIntent(PlayerNotificationAction.ACTION_NEXT.actionString)
 
         // Define icons
         val playPauseIcon =
-            if (player.isPlaying) {
+            if (isPlaying) {
                 androidx.media3.ui.R.drawable.exo_notification_pause
             } else {
                 androidx.media3.ui.R.drawable.exo_notification_play
@@ -206,6 +208,26 @@ class PlaybackService : MediaSessionService() {
             Intent(this, PlaybackService::class.java).setAction(action),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        when(playbackState) {
+
+            Player.STATE_BUFFERING -> {
+
+            }
+            Player.STATE_IDLE -> {
+                isPlaying = false
+                updateNotificationOnPlayPause()
+            }
+            Player.STATE_ENDED -> {
+                isPlaying = false
+                updateNotificationOnPlayPause()
+            }
+            else -> {
+
+            }
+        }
     }
 
     companion object {
