@@ -20,6 +20,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.MediaStyleNotificationHelper
 import com.google.common.collect.ImmutableList
+import kotlin.math.abs
 
 class PlaybackService : MediaSessionService(), Player.Listener {
     private var mediaSession: MediaSession? = null
@@ -96,11 +97,13 @@ class PlaybackService : MediaSessionService(), Player.Listener {
                 }
 
                 PlayerNotificationAction.ACTION_PREVIOUS.actionString -> {
-                    player.seekToPrevious()
+//                    player.seekToPrevious()
+                    seekToPrevious()
                 }
 
                 PlayerNotificationAction.ACTION_NEXT.actionString -> {
-                    player.seekToNext()
+//                    player.seekToNext()
+                    seekToNext()
                 }
             }
         }
@@ -209,16 +212,27 @@ class PlaybackService : MediaSessionService(), Player.Listener {
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {
-        when(playbackState) {
+        when (playbackState) {
+            Player.STATE_READY -> {
+                if (player.playWhenReady) {
+                    isPlaying = true
+                    updateNotificationOnPlayPause()
+                } else {
+                    isPlaying = false
+                    updateNotificationOnPlayPause()
+                }
+            }
 
             Player.STATE_IDLE -> {
                 isPlaying = false
                 updateNotificationOnPlayPause()
             }
+
             Player.STATE_ENDED -> {
                 isPlaying = false
                 updateNotificationOnPlayPause()
             }
+
             else -> {
 
             }
@@ -254,6 +268,29 @@ class PlaybackService : MediaSessionService(), Player.Listener {
 
     private fun showToast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun seekToNext() {
+        val currentItemIndex = player.currentMediaItemIndex
+        val totalNumberOfMediaItems = player.mediaItemCount
+
+        val nextItemIndex = modulo(currentItemIndex + 1, totalNumberOfMediaItems)
+
+        player.seekTo(nextItemIndex, 0)
+
+    }
+
+    private fun seekToPrevious() {
+        val currentItemIndex = player.currentMediaItemIndex
+        val totalNumberOfMediaItems = player.mediaItemCount
+
+        val previousItemIndex = modulo(currentItemIndex - 1, totalNumberOfMediaItems)
+
+        player.seekTo(previousItemIndex, 0)
+    }
+
+    private fun modulo(dividend: Int, divider: Int): Int {
+        return abs(dividend % divider)
     }
 
     companion object {
