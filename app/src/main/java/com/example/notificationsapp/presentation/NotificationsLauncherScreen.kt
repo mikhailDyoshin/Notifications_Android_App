@@ -17,6 +17,8 @@ fun NotificationsLauncherScreen(
     notifyBasic: () -> Unit,
     notifyReply: () -> Unit,
     notifyDownload: () -> Unit,
+    play: () -> Unit,
+    pause: () -> Unit,
     clearAll: () -> Unit,
 ) {
     Column(
@@ -38,6 +40,14 @@ fun NotificationsLauncherScreen(
             }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+            Button(onClick = { play() }) {
+                Text(text = "Play")
+            }
+            Button(onClick = { pause() }) {
+                Text(text = "Pause")
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
             Button(onClick = { clearAll() }) {
                 Text(text = "Clear all")
             }
@@ -53,6 +63,8 @@ fun NotificationsLauncherScreenPreview() {
         notifyBasic = {},
         notifyReply = {},
         notifyDownload = {},
+        play = {},
+        pause = {},
         clearAll = {},
     )
 }
