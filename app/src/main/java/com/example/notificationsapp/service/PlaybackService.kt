@@ -33,14 +33,16 @@ class PlaybackService : MediaSessionService(), Player.Listener {
     private lateinit var player: ExoPlayer
 
     // Create your player and media session in the onCreate lifecycle event
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
         player = ExoPlayer.Builder(this).build()
         player.addListener(this)
         mediaSession = MediaSession.Builder(this, player).build()
-        isPlaying = true
+        isPlaying = false
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotification(mediaSession!!)
 
         this.setMediaNotificationProvider(object : MediaNotification.Provider {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -86,14 +88,10 @@ class PlaybackService : MediaSessionService(), Player.Listener {
                 }
 
                 PlayerNotificationAction.ACTION_PLAY.actionString -> {
-                    isPlaying = true
-                    updateNotificationOnPlayPause()
                     player.play()
                 }
 
                 PlayerNotificationAction.ACTION_PAUSE.actionString -> {
-                    isPlaying = false
-                    updateNotificationOnPlayPause()
                     player.pause()
                 }
 
@@ -213,9 +211,6 @@ class PlaybackService : MediaSessionService(), Player.Listener {
     override fun onPlaybackStateChanged(playbackState: Int) {
         when(playbackState) {
 
-            Player.STATE_BUFFERING -> {
-
-            }
             Player.STATE_IDLE -> {
                 isPlaying = false
                 updateNotificationOnPlayPause()
@@ -228,6 +223,37 @@ class PlaybackService : MediaSessionService(), Player.Listener {
 
             }
         }
+    }
+
+    override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+        if (playWhenReady) {
+            isPlaying = true
+            updateNotificationOnPlayPause()
+        } else {
+            isPlaying = false
+            updateNotificationOnPlayPause()
+        }
+    }
+
+    override fun onPositionDiscontinuity(
+        oldPosition: Player.PositionInfo,
+        newPosition: Player.PositionInfo,
+        reason: Int
+    ) {
+
+        val currentTrackIndex = player.currentMediaItemIndex
+        val totalNumberOfMediaItems = player.mediaItemCount
+
+        val isLastItem = currentTrackIndex == totalNumberOfMediaItems - 1
+
+        if (isLastItem) {
+            showToast("Last item")
+        }
+
+    }
+
+    private fun showToast(text: String) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
 
     companion object {

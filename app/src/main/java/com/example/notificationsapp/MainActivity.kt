@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
 
         val audioUrl = "https://storage.googleapis.com/exoplayer-test-media-0/play.mp3"
         val shotUrl = "https://actions.google.com/sounds/v1/weapons/50_cal_shells_drop.ogg"
+        val babyUrl = "https://actions.google.com/sounds/v1/human_voices/babies_coo.ogg"
 
         val mediaItem =
             MediaItem.Builder()
@@ -68,9 +69,27 @@ class MainActivity : ComponentActivity() {
                 )
                 .build()
 
+        val mediaItem3 =
+            MediaItem.Builder()
+                .setMediaId("media-3")
+                .setUri(Uri.parse(babyUrl))
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setArtist("Baby Baby")
+                        .setTitle("Coo")
+                        .build()
+                )
+                .build()
+
+        val mediaItemsList = listOf(mediaItem, mediaItem2, mediaItem3)
+
         val controllerFuture =
             MediaController.Builder(context, sessionToken).buildAsync()
 
+        controllerFuture.addListener({
+            val controller = controllerFuture.get()
+            controller.addMediaItems(mediaItemsList)
+        }, MoreExecutors.directExecutor())
 
 
 
@@ -108,8 +127,6 @@ class MainActivity : ComponentActivity() {
                         play = {
                             controllerFuture.addListener({
                                 val controller = controllerFuture.get()
-                                controller.addMediaItem(mediaItem)
-                                controller.addMediaItem(mediaItem2)
                                 controller.prepare()
                                 controller.play()
                             }, MoreExecutors.directExecutor())
